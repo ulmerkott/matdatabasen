@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
@@ -47,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
         MatListView.setAdapter(
                 new CursorAdapter(getApplicationContext(),
                         R.layout.container_list_layout, DBCursor,
-                        new String[] {DatabaseAccess.KEY_NAME},
-                        new int[] { R.id.list_item })
+                        new String[] {DatabaseAccess.KEY_NAME, "Energi (kcal)"},
+                        new int[] { R.id.list_item, R.id.sub_list_item })
         );
 
         LivsmedelsDB.close();

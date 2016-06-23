@@ -56,23 +56,6 @@ public class DatabaseAccess {
         }
     }
 
-    /** TODO: REMOVE THIS WHEN CURSOR IS IMPLEMENTED
-     * Read all livsmedel from the database.
-     *
-     * @return a List of livsmedel
-     */
-    public List<String> getLivsmedelList() {
-        List<String> list = new ArrayList<>();
-        Cursor cursor = database.rawQuery("SELECT Namn,\"Energi (kcal)\" FROM livsmedel", null);
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            list.add(cursor.getString(0) + "  " + cursor.getString(1) + " kcal/100g");
-            cursor.moveToNext();
-        }
-        cursor.close();
-        return list;
-    }
-
     public Cursor getLivsmedel() {
         return database.rawQuery(String.format("SELECT rowid as _id,%s,%s FROM livsmedel ORDER BY %s", KEY_NAME, KEY_KCAL, KEY_NAME), null);
     }

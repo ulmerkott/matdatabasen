@@ -1,17 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="2dip" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+    android:clipToPadding="false"
+    android:paddingEnd="@dimen/abc_action_bar_icon_vertical_padding_material"
+    android:paddingStart="@dimen/abc_action_bar_icon_vertical_padding_material"
+    android:paddingTop="@dimen/abc_dialog_list_padding_vertical_material"
+    android:paddingBottom="@dimen/abc_dialog_list_padding_vertical_material">
 
+
+    <TextView
+        android:id="@+id/list_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="0dip"
+        android:textColor="#000000"
+        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="0dip" >
         <TextView
-            android:id="@+id/list_item"
-            android:layout_width="match_parent"
+            android:id="@+id/sub_list_item"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="4dip"
-            android:background="#ffffff"
-            android:textColor="#000000" />
+            android:paddingStart="@dimen/abc_action_bar_icon_vertical_padding_material"
+            android:textColor="#777777"
+            android:textAppearance="@android:style/TextAppearance.Material.Small" />
+        <TextView
+            android:id="@+id/kcal_list_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/kcal_suffix"
+            android:textColor="#777777"
+            android:textAppearance="@android:style/TextAppearance.Material.Small" />
+    </LinearLayout>
 
 </LinearLayout>
