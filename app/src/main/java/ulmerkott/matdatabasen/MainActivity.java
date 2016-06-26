@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.view.animation.OvershootInterpolator;
 import android.widget.SearchView;
 import android.widget.Toolbar;
 import android.text.TextUtils;
@@ -29,6 +30,7 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
     private Cursor DBCursor;
     private SearchView DBSearchView;
     private CursorAdapter DBCursorAdapter;
+    private FloatingActionButton Fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,20 +38,27 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        assert fab != null;
-        fab.setOnClickListener(new View.OnClickListener() {
+        Fab = (FloatingActionButton) findViewById(R.id.fab);
+        Fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: Create a toolbar instead of the SearchVIew we have currently.. see:
-                //http://stackoverflow.com/questions/32751024/fab-to-search-bar
-                DBSearchView.setIconified(false);
-                DBSearchView.requestFocus();
-                DBSearchView.setVisibility(View.VISIBLE);
+                ShowSearchView(true);
             }
         });
-
         DBSearchView = (SearchView) findViewById(R.id.searchView);
+
+        DBSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                if (DBSearchView.getQuery().toString().isEmpty()) {
+                    ShowSearchView(false);
+                }
+                else {
+                    DBSearchView.setQuery("",true);
+                }
+                return true;
+            }
+        });
 
         MatListView = (ListView) findViewById(R.id.listView);
         LivsmedelsDB = DatabaseAccess.getInstance(this);
@@ -64,8 +73,6 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
 
         DBSearchView.setIconifiedByDefault(true);
         DBSearchView.setOnQueryTextListener(this);
-        DBSearchView.setSubmitButtonEnabled(true);
-        DBSearchView.setQueryHint("Search Here");
     }
 
     @Override
@@ -75,19 +82,48 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
     }
 
     @Override
+    public void onBackPressed() {
+        if (DBSearchView.getVisibility() == View.VISIBLE) {
+            ShowSearchView(false);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void ShowSearchView(boolean show) {
+        if (show) {
+            DBSearchView.setIconified(false);
+            DBSearchView.requestFocus();
+            DBSearchView.setVisibility(View.VISIBLE);
+            Fab.animate()
+                    .scaleX(0)
+                    .scaleY(0)
+                    .setInterpolator(new OvershootInterpolator())
+                    .start();
+            Fab.hide();
+        }
+        else {
+            DBSearchView.setVisibility(View.GONE);
+            Fab.show();
+            Fab.animate()
+                    .scaleX(1)
+                    .scaleY(1)
+                    .setInterpolator(new OvershootInterpolator())
+                    .start();
+        }
+    }
+
+    @Override
     public boolean onQueryTextSubmit(String query) {
         return false;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        if (TextUtils.isEmpty(newText)) {
-            MatListView.clearTextFilter();
-        } else {
-            DBCursorAdapter.getFilter().filter(newText);
-        }
+        DBCursorAdapter.getFilter().filter(newText);
         return true;
     }
+
 
     class CursorAdapter extends SimpleCursorAdapter implements SectionIndexer {
 
