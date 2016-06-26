@@ -17,7 +17,7 @@ public class DatabaseAccess {
     static final String KEY_NAME = "Namn";
     static final String KEY_KCAL = "\"Energi (kcal)\"";
 
-
+    static final String SQL_DEFAULT_ORDER = " ORDER BY " + KEY_NAME;
     /**
      * Private constructor to aboid object creation from outside classes.
      *
@@ -57,6 +57,15 @@ public class DatabaseAccess {
     }
 
     public Cursor getLivsmedel() {
-        return database.rawQuery(String.format("SELECT rowid as _id,%s,%s FROM livsmedel ORDER BY %s", KEY_NAME, KEY_KCAL, KEY_NAME), null);
+        return database.rawQuery(
+                String.format("SELECT rowid as _id,%s,%s FROM livsmedel %s",
+                        KEY_NAME, KEY_KCAL, SQL_DEFAULT_ORDER), null);
+    }
+
+    public Cursor searchLivsmedel(String value) {
+        return database.rawQuery(
+                "SELECT rowid as _id,Namn,\"Energi (kcal)\" FROM livsmedel WHERE Namn LIKE \"%" + value + "%\" " + SQL_DEFAULT_ORDER, null);
+
+        //String.format("SELECT rowid as _id,%s,%s FROM livsmedel WHERE %s LIKE '\\%%s\\%' %s", KEY_NAME, KEY_KCAL, KEY_NAME, value, SQL_DEFAULT_ORDER)
     }
 }
