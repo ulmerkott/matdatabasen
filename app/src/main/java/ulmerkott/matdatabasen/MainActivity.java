@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.OvershootInterpolator;
 import android.widget.SearchView;
 import android.widget.Toolbar;
@@ -92,10 +93,15 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
 
     private void ShowSearchView(boolean show) {
         if (show) {
+            AlphaAnimation animation1 = new AlphaAnimation(0.0f, 1.0f);
+            animation1.setDuration(500);
+            animation1.setFillAfter(true);
+            DBSearchView.startAnimation(animation1);
             DBSearchView.setIconified(false);
             DBSearchView.requestFocus();
             DBSearchView.setVisibility(View.VISIBLE);
             Fab.animate()
+                    .setStartDelay(500)
                     .scaleX(0)
                     .scaleY(0)
                     .setInterpolator(new OvershootInterpolator())
@@ -103,9 +109,14 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
             Fab.hide();
         }
         else {
+            AlphaAnimation animation1 = new AlphaAnimation(1.0f, 0.0f);
+            animation1.setDuration(500);
+            animation1.setFillAfter(false);
+            DBSearchView.startAnimation(animation1);
             DBSearchView.setVisibility(View.GONE);
             Fab.show();
             Fab.animate()
+                    .setStartDelay(500)
                     .scaleX(1)
                     .scaleY(1)
                     .setInterpolator(new OvershootInterpolator())
