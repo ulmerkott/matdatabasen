@@ -1,7 +1,11 @@
 #!/bin/bash
-# Script to update a the livsmedel DB with information about portion sizes from the fineli website.
+# Script to update a the livsmedel DB with information about portion sizes from the fineli.fi website.
 
 DATABASE_FILE=LivsmedelsDB_fineli.sqlite
+
+# Use the following to resume from a specific iteration if previous scraping failed because of a hanging wget call.
+RESUME_FROM=0
+
 SCRAPE_URL_BASE="https://fineli.fi/fineli/sv/elintarvikkeet/"
 SCRAPE_URL_END="?foodType=ANY&portionUnit=G&portionSize=100&sortByColumn=name&sortOrder=asc&component=2331&"
 
@@ -9,12 +13,10 @@ IFS=$'\n'
 size=`echo 'SELECT COUNT(id) FROM livsmedel;' | sqlite3 $DATABASE_FILE`
 count=1
 for id in `echo 'SELECT id FROM livsmedel;' | sqlite3 $DATABASE_FILE`; do
-    # Uncomment the following to resume from a specific id if previous scraping failed because of a hanging wget call.
-    # RESTART_FROM=1500
-    # if [ $count -lt $RESTART_FROM ]; then
-    #     let count=count+1
-    #     continue
-    # fi
+    if [ $count -lt $RESUME_FROM ]; then
+         let count=count+1
+         continue
+    fi
 
     atName=true
     separator=""
