@@ -1,17 +1,21 @@
 package ulmerkott.matdatabasen;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.Slide;
+import android.transition.Transition;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.OvershootInterpolator;
+import android.widget.AdapterView;
 import android.widget.SearchView;
 import android.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.AlphabetIndexer;
 import android.widget.FilterQueryProvider;
@@ -22,7 +26,8 @@ import android.widget.SimpleCursorAdapter;
 // TODO:
 // * Långsam start ibland
 // * Infosida om livsmedel
-// * expandable listview för att snabbt visa infon?
+// * Klickar man på sök medan den animerar så kan man hamna i ett läge där FAB är osynlig i ej sökläge.
+//   --> I onclick för FAB så ska man nog kolla om sök är aktivt...
 
 public class MainActivity extends Activity implements SearchView.OnQueryTextListener {
 
@@ -39,6 +44,8 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setActionBar(toolbar);
+
+
         Fab = (FloatingActionButton) findViewById(R.id.fab);
         Fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,13 +74,28 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
         DBCursor = LivsmedelsDB.getLivsmedel();
         DBCursorAdapter = new CursorAdapter(getApplicationContext(),
                 R.layout.container_list_layout, DBCursor,
-                new String[] {DatabaseAccess.KEY_NAME, "Energi (kcal)"},
+                new String[] {DatabaseAccess.KEY_NAME, DatabaseAccess.KEY_ENERGY},
                 new int[] { R.id.list_item, R.id.sub_list_item });
 
         MatListView.setAdapter(DBCursorAdapter);
 
         DBSearchView.setIconifiedByDefault(true);
         DBSearchView.setOnQueryTextListener(this);
+        MatListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long row_id) {
+                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this);
+                Intent intent = new Intent(MainActivity.this, MatInfoActivity.class);
+                intent.putExtra(DatabaseAccess.INTENT_ROW_ID, String.valueOf(row_id));
+                startActivity(intent, options.toBundle());
+            }
+        });
+
+        Transition exitTrans = new Fade();
+        getWindow().setExitTransition(exitTrans);
+
+        Transition reenterTrans = new Slide();
+        getWindow().setReenterTransition(reenterTrans);
     }
 
     @Override
