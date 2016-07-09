@@ -4,10 +4,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class DatabaseAccess {
     private SQLiteOpenHelper openHelper;
@@ -81,13 +80,13 @@ public class DatabaseAccess {
         }
     }
 
-    public Cursor getLivsmedel() {
+    public Cursor GetLivsmedel() {
         return database.rawQuery(
                 String.format("SELECT rowid as _id,%s,%s FROM livsmedel %s",
                         KEY_NAME, SQL_GET_KCAL, SQL_DEFAULT_ORDER), null);
     }
 
-    public Cursor searchLivsmedel(String value) {
+    public Cursor SearchLivsmedel(String value) {
         return database.rawQuery(
                 "SELECT rowid as _id," + KEY_NAME + "," + SQL_GET_KCAL + " FROM livsmedel WHERE "
                         + KEY_NAME + " LIKE \"%" + value + "%\" " + SQL_DEFAULT_ORDER, null);
@@ -99,15 +98,45 @@ public class DatabaseAccess {
                 KEY_PROTEIN + "\",\"" + KEY_CARB + "\",\"" + KEY_FAT + "\", " + KEY_PORTIONS + " " +
                 "FROM livsmedel WHERE rowid LIKE " + matRowId, null);
         cursor.moveToFirst();
-        Food food = new Food(cursor.getString(cursor.getColumnIndex(KEY_NAME)), cursor.getInt(1),
+        String[] nameInfo = ParseNameString(cursor.getString(0));
+        Food food = new Food(nameInfo[0], nameInfo[1], cursor.getInt(1),
                 cursor.getFloat(2), cursor.getFloat(3), cursor.getFloat(4));
-        food.Portions = parsePortionString(cursor.getString(5));
+        food.Portions = ParsePortionString(cursor.getString(5));
         return food;
     }
 
-    private HashMap<String,Integer> parsePortionString(String string) {
-        // TODO: Do this!!
-        HashMap<String,Integer> portions = new HashMap<String, Integer>();
+    private String[] ParseNameString(String nameString) {
+        String name = "";
+        String info = "";
+        int separatorIndex = nameString.indexOf(",");
+        if (separatorIndex != -1) {
+            // Found extended info
+            info = nameString.substring(separatorIndex+1).trim();
+            // Capitalize first letter
+            info = info.substring(0, 1).toUpperCase() + info.substring(1);
+            name = nameString.substring(0,separatorIndex);
+        }
+        else {
+            name = nameString;
+        }
+        return new String[] {name, info};
+    }
+
+    private HashMap<String, Integer> ParsePortionString(String portionsString) {
+        // 1 Portion med 1000kJ:(202 g),1 liten portion:(100 g),1 medelstor portion:(160 g),1 stor portion:(215 g)
+        HashMap<String, Integer> portions = new HashMap<String, Integer>();
+
+        for (String portion: portionsString.split(",")) {
+            if (!portion.isEmpty()) {
+                int separatorIndex = portion.indexOf(":");
+                String gramString = portion.substring(separatorIndex + 1).trim();
+                String title = portion.substring(0, separatorIndex) + " " + gramString;
+                Integer grams = Integer.parseInt(gramString.substring(gramString.indexOf("(") + 1, gramString.indexOf(" g)")));
+
+                portions.put(title, grams);
+            }
+        }
+
         return portions;
     }
 }

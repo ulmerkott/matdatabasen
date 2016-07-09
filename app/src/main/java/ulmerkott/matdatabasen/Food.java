@@ -17,14 +17,16 @@ public class Food {
      */
 
     public String Name;
+    public String Info;
     public Integer Kcal;
     public float Carb;
     public float Fat;
     public float Protein;
     public HashMap<String, Integer> Portions;
 
-    public Food(String name, Integer kcal, float carb, float fat, float protein) {
+    public Food(String name, String info, Integer kcal, float carb, float fat, float protein) {
         Name = name;
+        Info = info;
         Kcal = kcal;
         Carb = carb;
         Fat = fat;

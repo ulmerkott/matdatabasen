@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.transition.Explode;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.Transition;
@@ -71,7 +70,7 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
         MatListView = (ListView) findViewById(R.id.listView);
         LivsmedelsDB = DatabaseAccess.getInstance(this);
         LivsmedelsDB.open();
-        DBCursor = LivsmedelsDB.getLivsmedel();
+        DBCursor = LivsmedelsDB.GetLivsmedel();
         DBCursorAdapter = new CursorAdapter(getApplicationContext(),
                 R.layout.container_list_layout, DBCursor,
                 new String[] {DatabaseAccess.KEY_NAME, DatabaseAccess.KEY_ENERGY},
@@ -173,7 +172,7 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
             setFilterQueryProvider(new FilterQueryProvider() {
                 @Override
                 public Cursor runQuery(CharSequence constraint) {
-                    Cursor cursor = LivsmedelsDB.searchLivsmedel(constraint.toString());
+                    Cursor cursor = LivsmedelsDB.SearchLivsmedel(constraint.toString());
                     alphaIndexer.setCursor(cursor);
                     return cursor;
                 }

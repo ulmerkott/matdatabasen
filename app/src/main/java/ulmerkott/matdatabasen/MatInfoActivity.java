@@ -2,17 +2,18 @@ package ulmerkott.matdatabasen;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.transition.Explode;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.HashMap;
 
 public class MatInfoActivity extends AppCompatActivity {
 
@@ -30,33 +31,30 @@ public class MatInfoActivity extends AppCompatActivity {
         }
 
         DatabaseAccess matDbAccess = DatabaseAccess.getInstance(this);
-        Food food = matDbAccess.GetFood(matRowId);
+        final Food food = matDbAccess.GetFood(matRowId);
 
         MatInfoActivity.this.setTitle(food.Name);
+        TextView extendedInfo = (TextView) findViewById(R.id.extentedInfo);
+        extendedInfo.setText(food.Info);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab2);
         registerForContextMenu(fab);
 
         final PopupMenu popup = new PopupMenu(MatInfoActivity.this, fab);
         popup.getMenuInflater().inflate(R.menu.menu_portions, popup.getMenu());
         popup.getMenu().add(R.string.custom_portion);
-        popup.getMenu().add("1 st. (100 g)");
-        popup.getMenu().add("1 port. (125 g)");
+        for (String key: food.Portions.keySet() ) {
+            popup.getMenu().add(key);
+        }
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Setup menu item selection
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case 0:
-                                Toast.makeText(MatInfoActivity.this, "Custom!", Toast.LENGTH_SHORT).show();
-                                return true;
-                            case 1:
-                                Toast.makeText(MatInfoActivity.this, "Portion!", Toast.LENGTH_SHORT).show();
-                                return true;
-                            default:
-                                return false;
-                        }
+                        String title = (String) item.getTitle();
+                        Toast.makeText(MatInfoActivity.this, title + " " + food.Portions.get(title).toString() + " g", Toast.LENGTH_SHORT).show();
+                        return true;
                     }
                 });
                 // Handle dismissal with: popup.setOnDismissListener(...);
