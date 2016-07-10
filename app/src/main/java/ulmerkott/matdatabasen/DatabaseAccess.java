@@ -6,7 +6,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class DatabaseAccess {
     private SQLiteOpenHelper openHelper;
@@ -29,7 +32,7 @@ public class DatabaseAccess {
     static final String KEY_ENERGY = "energi, beräknad (kJ)";
     static final String KEY_CARB = "kolhydrater, digererbara (g)";
     static final String KEY_FAT = "fett, totalt (g)";
-    static final String KEY_PROTEIN = "kolhydrater, digererbara (g)";
+    static final String KEY_PROTEIN = "protein, totalt (g)";
     static final String KEY_PORTIONS = "portions";
 
     static final String KJ_TO_KCAL_FACTOR = "4.184";
@@ -92,17 +95,42 @@ public class DatabaseAccess {
                         + KEY_NAME + " LIKE \"%" + value + "%\" " + SQL_DEFAULT_ORDER, null);
     }
 
-
     public Food GetFood(String matRowId) {
         Cursor cursor = database.rawQuery("SELECT \"" + KEY_NAME + "\"," + SQL_GET_KCAL + ",\"" +
-                KEY_PROTEIN + "\",\"" + KEY_CARB + "\",\"" + KEY_FAT + "\", " + KEY_PORTIONS + " " +
+                KEY_CARB + "\",\"" + KEY_FAT + "\",\"" + KEY_PROTEIN + "\", " + KEY_PORTIONS + " " +
                 "FROM livsmedel WHERE rowid LIKE " + matRowId, null);
         cursor.moveToFirst();
+
+        String sqlstr = "SELECT \"" + KEY_NAME + "\"," + SQL_GET_KCAL + ",\"" +
+                KEY_CARB + "\",\"" + KEY_FAT + "\",\"" + KEY_PROTEIN + "\", " + KEY_PORTIONS + " " +
+                "FROM livsmedel WHERE rowid LIKE " + matRowId;
+        Log.d("ULMER", sqlstr);
         String[] nameInfo = ParseNameString(cursor.getString(0));
+
         Food food = new Food(nameInfo[0], nameInfo[1], cursor.getInt(1),
-                cursor.getFloat(2), cursor.getFloat(3), cursor.getFloat(4));
+                ParseFloatString(cursor.getString(2)),
+                ParseFloatString(cursor.getString(3)),
+                ParseFloatString(cursor.getString(4)));
         food.Portions = ParsePortionString(cursor.getString(5));
         return food;
+    }
+
+    private float ParseFloatString(String valueString) {
+        String tempString = valueString;
+        if (valueString.startsWith("<")) {
+            tempString = tempString.substring(1).trim();
+        }
+
+        // Needed to parse decimal string with commas.
+        NumberFormat format = NumberFormat.getInstance(Locale.FRENCH);
+        float value = 0;
+        try {
+            value = format.parse(tempString).floatValue();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Log.d("ULMER", "STR: " + valueString + " VALUE: " + String.valueOf(value));
+        return value;
     }
 
     private String[] ParseNameString(String nameString) {

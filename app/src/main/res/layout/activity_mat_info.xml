@@ -54,13 +54,17 @@
                     android:textSize="@dimen/abc_text_size_subhead_material"
                     android:textColor="@android:color/white"
                     android:text="Lorem Ipsum IIpdf apansson foobar foo."/>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    />
                 <TextView
                     android:id="@+id/portionInfo"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="bottom"
+                    android:layout_height="wrap_content"
                     android:layout_marginEnd="59dp"
-                    android:textAlignment="viewEnd"
+                    android:gravity="right"
                     android:textSize="@dimen/abc_text_size_subhead_material"
                     android:textStyle="bold"
                     android:textColor="@android:color/white"
