@@ -93,7 +93,7 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
         Transition exitTrans = new Fade();
         getWindow().setExitTransition(exitTrans);
 
-        Transition reenterTrans = new Slide();
+        Transition reenterTrans = new Fade();
         getWindow().setReenterTransition(reenterTrans);
     }
 

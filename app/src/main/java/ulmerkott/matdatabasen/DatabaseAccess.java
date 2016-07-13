@@ -159,6 +159,8 @@ public class DatabaseAccess {
         // 1 Portion med 1000kJ:(202 g),1 liten portion:(100 g),1 medelstor portion:(160 g),1 stor portion:(215 g)
         HashMap<String, Integer> portions = new HashMap<String, Integer>();
 
+        portions.put("Standardvärde (100 g)", 100);
+
         for (String portion: portionsString.split(",")) {
             if (!portion.isEmpty()) {
                 int separatorIndex = portion.indexOf(":");

@@ -1,11 +1,14 @@
 package ulmerkott.matdatabasen;
 
 import android.graphics.Color;
+import android.graphics.Path;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.Fade;
+import android.transition.PathMotion;
+import android.transition.SidePropagation;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.view.MenuItem;
@@ -27,6 +30,8 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
+import org.w3c.dom.Text;
+
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -35,6 +40,7 @@ public class MatInfoActivity extends AppCompatActivity {
 
     private Food FoodInfo;
     private PieChart MatChart;
+    private TextView PortionText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +55,13 @@ public class MatInfoActivity extends AppCompatActivity {
             matRowId = extras.getString(DatabaseAccess.INTENT_ROW_ID);
         }
 
+        PortionText = (TextView) findViewById(R.id.portionInfo);
+
         DatabaseAccess matDbAccess = DatabaseAccess.getInstance(this);
         FoodInfo = matDbAccess.GetFood(matRowId);
 
         MatInfoActivity.this.setTitle(FoodInfo.Name);
-        TextView extendedInfo = (TextView) findViewById(R.id.extentedInfo);
+        final TextView extendedInfo = (TextView) findViewById(R.id.extentedInfo);
         extendedInfo.setText(FoodInfo.Info);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab2);
@@ -61,7 +69,8 @@ public class MatInfoActivity extends AppCompatActivity {
 
         final PopupMenu popup = new PopupMenu(MatInfoActivity.this, fab);
         popup.getMenuInflater().inflate(R.menu.menu_portions, popup.getMenu());
-        popup.getMenu().add(R.string.custom_portion);
+        // TODO: Add choice for customizable portion
+        //popup.getMenu().add(R.string.custom_portion);
         for (String key: FoodInfo.Portions.keySet() ) {
             popup.getMenu().add(key);
         }
@@ -72,7 +81,11 @@ public class MatInfoActivity extends AppCompatActivity {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
                         String title = (String) item.getTitle();
-                        Toast.makeText(MatInfoActivity.this, title + " " + FoodInfo.Portions.get(title).toString() + " g", Toast.LENGTH_SHORT).show();
+                        FoodInfo.setPortion(FoodInfo.Portions.get(title));
+                        //setChartData();
+                        PortionText.setText(title);
+                        CreatePieChart();
+
                         return true;
                     }
                 });
@@ -83,19 +96,12 @@ public class MatInfoActivity extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Transition enterTrans = new Slide();
+        Transition enterTrans = new Fade();
         getWindow().setEnterTransition(enterTrans);
 
-        Transition returnTrans = new Fade();
+        Transition returnTrans = new Slide();
         getWindow().setReturnTransition(returnTrans);
         getWindow().setExitTransition(returnTrans);
-
-
-    }
-
-    @Override
-    public void onEnterAnimationComplete() {
-        super.onEnterAnimationComplete();
         CreatePieChart();
     }
 
@@ -110,44 +116,32 @@ public class MatInfoActivity extends AppCompatActivity {
         MatChart.setUsePercentValues(true);
         MatChart.setDescription("");
 
-        //MatChart.setCenterText("Hejsanhoppsan");
-
         MatChart.setDrawHoleEnabled(true);
         MatChart.setHoleColor(BACKGROUND_COLOR);
-        MatChart.setHoleRadius(80);
+        MatChart.setHoleRadius(60);
+        MatChart.setTransparentCircleRadius(70);
 
         MatChart.setTransparentCircleColor(BACKGROUND_COLOR);
         MatChart.setTransparentCircleAlpha(110);
 
-        MatChart.setDrawCenterText(false);
+        MatChart.setDrawCenterText(true);
 
         MatChart.setRotationEnabled(false);
         MatChart.setHighlightPerTapEnabled(false);
 
         // Use half pie
-        MatChart.setMaxAngle(360f);
-        MatChart.setRotationAngle(360f);
-        //MatChart.setCenterTextOffset(0, -20);
+        MatChart.setMaxAngle(180f);
+        MatChart.setRotationAngle(180f);
+        MatChart.setCenterTextOffset(0, -20);
+        MatChart.setCenterTextSize(18);
 
         Legend legend = MatChart.getLegend();
-        legend.setPosition(Legend.LegendPosition.PIECHART_CENTER);
+        legend.setPosition(Legend.LegendPosition.RIGHT_OF_CHART_CENTER);
         legend.setForm(Legend.LegendForm.CIRCLE);
-        legend.setYOffset(-10f);
-        //legend.setVerticalAlignment(Legend.LegendVerticalAlignment.CENTER);
-        //legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        legend.setMaxSizePercent(95);
-        //legend.setDirection(Legend.LegendDirection.LEFT_TO_RIGHT);
+        legend.setYOffset(-50f);
+        legend.setMaxSizePercent(50);
         legend.setFormSize(14);
         legend.setTextSize(12);
-        //legend.setMaxSizePercent(50);
-        /*
-        legend.setXEntrySpace(30f);
-        legend.setYEntrySpace(0f);
-        legend.setFormToTextSpace(4f);
-        legend.setXOffset(-40f);
-        legend.setYOffset(0f);
-*/
-
 
         setChartData();
 
@@ -158,43 +152,35 @@ public class MatInfoActivity extends AppCompatActivity {
     private void setChartData() {
         ArrayList<PieEntry> entries = new ArrayList<>();
         if (FoodInfo.Carb > 0) {
-            entries.add(new PieEntry(FoodInfo.getCarbKcal(), "Kolhydrater " + FoodInfo.getCarbKcal() + " kcal"));
+            entries.add(new PieEntry(FoodInfo.getCarbKcal(), "Kolhydrater " + RoundKcal(FoodInfo.getCarbKcal())));
         }
         if (FoodInfo.Fat > 0) {
-            entries.add(new PieEntry(FoodInfo.getFatKcal(), "Fett " + FoodInfo.getFatKcal() + " kcal"));
+            entries.add(new PieEntry(FoodInfo.getFatKcal(), "Fett " + RoundKcal(FoodInfo.getFatKcal())));
         }
         if (FoodInfo.Protein > 0) {
-            entries.add(new PieEntry(FoodInfo.getProteinKcal(), "Protein " + FoodInfo.getProteinKcal() + " kcal"));
+            entries.add(new PieEntry(FoodInfo.getProteinKcal(), "Protein " + RoundKcal(FoodInfo.getProteinKcal())));
         }
         if (FoodInfo.Alcohol > 0) {
-            entries.add(new PieEntry(FoodInfo.getAlkoholKcal(), "Alkohol " + FoodInfo.getAlkoholKcal() + " kcal"));
+            entries.add(new PieEntry(FoodInfo.getAlkoholKcal(), "Alkohol " + RoundKcal(FoodInfo.getAlkoholKcal())));
         }
         if (FoodInfo.Fiber > 0) {
-            entries.add(new PieEntry(FoodInfo.getFiberKcal(), "Fiber " + FoodInfo.getFiberKcal() + " kcal"));
+            entries.add(new PieEntry(FoodInfo.getFiberKcal(), "Fiber " + RoundKcal(FoodInfo.getFiberKcal())));
         }
 
         PieDataSet dataset = new PieDataSet(entries, "");
         dataset.setColors(ColorTemplate.MATERIAL_COLORS);
         dataset.setDrawValues(false);
-/*
-        dataset.setValueTextSize(14);
-        dataset.setValueLinePart1Length(0.4f);
-        dataset.setValueLinePart2Length(0.1f);
-        dataset.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float v, Entry entry, int i, ViewPortHandler viewPortHandler) {
-                DecimalFormat df = new DecimalFormat("#.#");
-                df.setRoundingMode(RoundingMode.CEILING);
-                return df.format(v) + " kcal";
-            }
-        });
-        dataset.setXValuePosition(PieDataSet.ValuePosition.INSIDE_SLICE);
-        dataset.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
-        dataset.setSliceSpace(0f);
-*/
         PieData data = new PieData(dataset);
         MatChart.setDrawEntryLabels(false);
+        MatChart.setCenterText(RoundKcal(FoodInfo.getTotalKcal()));
         MatChart.setData(data);
+        MatChart.notifyDataSetChanged();
+    }
+
+    private String RoundKcal(float value) {
+        DecimalFormat df = new DecimalFormat("#.#");
+        df.setRoundingMode(RoundingMode.CEILING);
+        return df.format(value) + " kcal";
     }
 }
 

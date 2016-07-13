@@ -1,5 +1,7 @@
 package ulmerkott.matdatabasen;
 
+import android.util.Log;
+
 import java.util.HashMap;
 
 /**
@@ -16,11 +18,12 @@ public class Food {
     "portions" TEXT DEFAULT ('NULL')
      */
 
+    private float Portion = 1;
+
     public String Name;
     public String Info;
     public Integer Kcal;
     public float Carb;
-
 
     public float Fat;
     public float Protein;
@@ -42,22 +45,31 @@ public class Food {
     }
 
     public float getCarbKcal() {
-        return Carb * 4;
+        return Carb * 4 * Portion;
     }
 
     public float getFatKcal() {
-        return Fat * 9;
+        return Fat * 9 * Portion;
     }
 
     public float getProteinKcal() {
-        return Protein * 4;
+        return Protein * 4 * Portion;
     }
 
     public float getAlkoholKcal() {
-        return Alcohol * 7;
+        return Alcohol * 7 * Portion;
     }
 
     public float getFiberKcal() {
-        return Fiber * 2;
+        return Fiber * 2 * Portion;
+    }
+
+    public float getTotalKcal() {
+        return getCarbKcal() + getFatKcal() + getProteinKcal() + getAlkoholKcal() + getFiberKcal();
+    }
+
+    public void setPortion(float grams) {
+        Portion = grams/100;
+        Log.d("ULMER", "Portion factor is " + Portion);
     }
 }

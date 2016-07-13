@@ -59,16 +59,6 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     />
-                <TextView
-                    android:id="@+id/portionInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="59dp"
-                    android:gravity="right"
-                    android:textSize="@dimen/abc_text_size_subhead_material"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    android:text="1 portion (100g)"/>
             </LinearLayout>
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
