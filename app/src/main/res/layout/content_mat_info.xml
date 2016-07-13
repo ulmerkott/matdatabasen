@@ -6,12 +6,9 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MatInfoActivity"
-    tools:showIn="@layout/activity_mat_info">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:weightSum="1">
+    tools:showIn="@layout/activity_mat_info"
+    android:fillViewport="false">
+<!--
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -19,10 +16,10 @@
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:textAlignment="center"/>
-
+-->
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/chart"
             android:layout_width="match_parent"
-            android:layout_height="250dp" />
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:minHeight="250dp" />
 </android.support.v4.widget.NestedScrollView>

@@ -20,16 +20,44 @@ public class Food {
     public String Info;
     public Integer Kcal;
     public float Carb;
+
+
     public float Fat;
     public float Protein;
+    public float Alcohol;
+    public float Fiber;
+
     public HashMap<String, Integer> Portions;
 
-    public Food(String name, String info, Integer kcal, float carb, float fat, float protein) {
+    public Food(String name, String info, Integer kcal, float carb, float fat, float protein,
+                float alcohol, float fiber) {
         Name = name;
         Info = info;
         Kcal = kcal;
         Carb = carb;
         Fat = fat;
         Protein = protein;
+        Alcohol = alcohol;
+        Fiber = fiber;
+    }
+
+    public float getCarbKcal() {
+        return Carb * 4;
+    }
+
+    public float getFatKcal() {
+        return Fat * 9;
+    }
+
+    public float getProteinKcal() {
+        return Protein * 4;
+    }
+
+    public float getAlkoholKcal() {
+        return Alcohol * 7;
+    }
+
+    public float getFiberKcal() {
+        return Fiber * 2;
     }
 }

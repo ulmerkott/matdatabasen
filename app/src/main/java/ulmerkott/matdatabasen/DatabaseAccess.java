@@ -33,6 +33,9 @@ public class DatabaseAccess {
     static final String KEY_CARB = "kolhydrater, digererbara (g)";
     static final String KEY_FAT = "fett, totalt (g)";
     static final String KEY_PROTEIN = "protein, totalt (g)";
+    static final String KEY_ALKOHOL = "alkohol (g)";
+    static final String KEY_FIBER = "fiber, totalt (g)";
+
     static final String KEY_PORTIONS = "portions";
 
     static final String KJ_TO_KCAL_FACTOR = "4.184";
@@ -96,22 +99,24 @@ public class DatabaseAccess {
     }
 
     public Food GetFood(String matRowId) {
-        Cursor cursor = database.rawQuery("SELECT \"" + KEY_NAME + "\"," + SQL_GET_KCAL + ",\"" +
-                KEY_CARB + "\",\"" + KEY_FAT + "\",\"" + KEY_PROTEIN + "\", " + KEY_PORTIONS + " " +
-                "FROM livsmedel WHERE rowid LIKE " + matRowId, null);
-        cursor.moveToFirst();
-
         String sqlstr = "SELECT \"" + KEY_NAME + "\"," + SQL_GET_KCAL + ",\"" +
-                KEY_CARB + "\",\"" + KEY_FAT + "\",\"" + KEY_PROTEIN + "\", " + KEY_PORTIONS + " " +
+                KEY_CARB + "\",\"" + KEY_FAT + "\",\"" + KEY_PROTEIN + "\", \"" +
+                KEY_ALKOHOL + "\",\"" + KEY_FIBER + "\", " + KEY_PORTIONS + " " +
                 "FROM livsmedel WHERE rowid LIKE " + matRowId;
         Log.d("ULMER", sqlstr);
+        Cursor cursor = database.rawQuery(sqlstr, null);
+        cursor.moveToFirst();
+
+
         String[] nameInfo = ParseNameString(cursor.getString(0));
 
         Food food = new Food(nameInfo[0], nameInfo[1], cursor.getInt(1),
                 ParseFloatString(cursor.getString(2)),
                 ParseFloatString(cursor.getString(3)),
-                ParseFloatString(cursor.getString(4)));
-        food.Portions = ParsePortionString(cursor.getString(5));
+                ParseFloatString(cursor.getString(4)),
+                ParseFloatString(cursor.getString(5)),
+                ParseFloatString(cursor.getString(6)));
+        food.Portions = ParsePortionString(cursor.getString(7));
         return food;
     }
 

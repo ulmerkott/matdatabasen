@@ -1,6 +1,5 @@
 package ulmerkott.matdatabasen;
 
-import android.animation.Animator;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -9,11 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.Transition;
-import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.OvershootInterpolator;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,14 +17,19 @@ import android.widget.Toast;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 
-import java.text.ParseException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MatInfoActivity extends AppCompatActivity {
 
@@ -99,80 +100,101 @@ public class MatInfoActivity extends AppCompatActivity {
     }
 
     private void CreatePieChart() {
+        // Color same as default activity background color.
+        int BACKGROUND_COLOR = Color.parseColor("#fafafa");
 
         MatChart = (PieChart) findViewById(R.id.chart);
-/*
-        MatChart.setRotationEnabled(false);
-        MatChart.setMaxAngle(180f);
-        MatChart.setRotationAngle(180f);
 
-        MatChart.setDrawHoleEnabled(true);
-        MatChart.setDescription("");
-        MatChart.setUsePercentValues(true);
-        MatChart.setBackgroundColor(Color.TRANSPARENT);
-        MatChart.setHoleColor(Color.TRANSPARENT);
-        MatChart.setTransparentCircleAlpha(255);
-        MatChart.setTransparentCircleColor(Color.TRANSPARENT);
-        MatChart.setCenterTextOffset(0, -20);*/
-
-        MatChart = (PieChart) findViewById(R.id.chart);
-        MatChart.setBackgroundColor(Color.parseColor("#fafafa"));
-
+        MatChart.setBackgroundColor(BACKGROUND_COLOR);
 
         MatChart.setUsePercentValues(true);
         MatChart.setDescription("");
 
-        MatChart.setCenterText("Hejsanhoppsan");
+        //MatChart.setCenterText("Hejsanhoppsan");
 
         MatChart.setDrawHoleEnabled(true);
-        MatChart.setHoleColor(Color.parseColor("#fafafa"));
+        MatChart.setHoleColor(BACKGROUND_COLOR);
+        MatChart.setHoleRadius(80);
 
-        MatChart.setTransparentCircleColor(Color.parseColor("#fafafa"));
+        MatChart.setTransparentCircleColor(BACKGROUND_COLOR);
         MatChart.setTransparentCircleAlpha(110);
 
-        MatChart.setHoleRadius(58f);
-        MatChart.setTransparentCircleRadius(61f);
-
-        MatChart.setDrawCenterText(true);
+        MatChart.setDrawCenterText(false);
 
         MatChart.setRotationEnabled(false);
-        MatChart.setHighlightPerTapEnabled(true);
+        MatChart.setHighlightPerTapEnabled(false);
 
-        MatChart.setMaxAngle(180f); // HALF CHART
-        MatChart.setRotationAngle(180f);
-        MatChart.setCenterTextOffset(0, -20);
+        // Use half pie
+        MatChart.setMaxAngle(360f);
+        MatChart.setRotationAngle(360f);
+        //MatChart.setCenterTextOffset(0, -20);
 
+        Legend legend = MatChart.getLegend();
+        legend.setPosition(Legend.LegendPosition.PIECHART_CENTER);
+        legend.setForm(Legend.LegendForm.CIRCLE);
+        legend.setYOffset(-10f);
+        //legend.setVerticalAlignment(Legend.LegendVerticalAlignment.CENTER);
+        //legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        legend.setMaxSizePercent(95);
+        //legend.setDirection(Legend.LegendDirection.LEFT_TO_RIGHT);
+        legend.setFormSize(14);
+        legend.setTextSize(12);
+        //legend.setMaxSizePercent(50);
+        /*
+        legend.setXEntrySpace(30f);
+        legend.setYEntrySpace(0f);
+        legend.setFormToTextSpace(4f);
+        legend.setXOffset(-40f);
+        legend.setYOffset(0f);
+*/
 
 
         setChartData();
 
         MatChart.animateY(1000, Easing.EasingOption.EaseOutCubic);
 
-        Legend legend = MatChart.getLegend();
-        legend.setPosition(Legend.LegendPosition.ABOVE_CHART_RIGHT);
-        legend.setForm(Legend.LegendForm.CIRCLE);
     }
 
     private void setChartData() {
-        // creating data values
         ArrayList<PieEntry> entries = new ArrayList<>();
         if (FoodInfo.Carb > 0) {
-            entries.add(new PieEntry(FoodInfo.Carb, "Kolhydrater"));
+            entries.add(new PieEntry(FoodInfo.getCarbKcal(), "Kolhydrater " + FoodInfo.getCarbKcal() + " kcal"));
         }
         if (FoodInfo.Fat > 0) {
-            entries.add(new PieEntry(FoodInfo.Fat, "Fett"));
+            entries.add(new PieEntry(FoodInfo.getFatKcal(), "Fett " + FoodInfo.getFatKcal() + " kcal"));
         }
         if (FoodInfo.Protein > 0) {
-            entries.add(new PieEntry(FoodInfo.Protein, "Protein"));
+            entries.add(new PieEntry(FoodInfo.getProteinKcal(), "Protein " + FoodInfo.getProteinKcal() + " kcal"));
+        }
+        if (FoodInfo.Alcohol > 0) {
+            entries.add(new PieEntry(FoodInfo.getAlkoholKcal(), "Alkohol " + FoodInfo.getAlkoholKcal() + " kcal"));
+        }
+        if (FoodInfo.Fiber > 0) {
+            entries.add(new PieEntry(FoodInfo.getFiberKcal(), "Fiber " + FoodInfo.getFiberKcal() + " kcal"));
         }
 
         PieDataSet dataset = new PieDataSet(entries, "");
         dataset.setColors(ColorTemplate.MATERIAL_COLORS);
+        dataset.setDrawValues(false);
+/*
         dataset.setValueTextSize(14);
-        dataset.setSliceSpace(1);
-
+        dataset.setValueLinePart1Length(0.4f);
+        dataset.setValueLinePart2Length(0.1f);
+        dataset.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float v, Entry entry, int i, ViewPortHandler viewPortHandler) {
+                DecimalFormat df = new DecimalFormat("#.#");
+                df.setRoundingMode(RoundingMode.CEILING);
+                return df.format(v) + " kcal";
+            }
+        });
+        dataset.setXValuePosition(PieDataSet.ValuePosition.INSIDE_SLICE);
+        dataset.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+        dataset.setSliceSpace(0f);
+*/
         PieData data = new PieData(dataset);
-        MatChart.setData(data); //set data into chart
+        MatChart.setDrawEntryLabels(false);
+        MatChart.setData(data);
     }
 }
 
