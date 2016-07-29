@@ -18,54 +18,81 @@ public class Food {
     "portions" TEXT DEFAULT ('NULL')
      */
 
+    private class MacroNutrient
+    {
+        private float Grams;
+        private float KcalFactor;
+
+        public MacroNutrient(float grams, float kcalFactor) {
+            Grams = grams;
+            KcalFactor = kcalFactor;
+        }
+
+        public float GetKcal() {
+            return Grams * KcalFactor;
+        }
+    }
+
     private float Portion = 1;
 
     public String Name;
     public String Info;
     public Integer Kcal;
-    public float Carb;
 
-    public float Fat;
-    public float Protein;
-    public float Alcohol;
-    public float Fiber;
+    public MacroNutrient Carb;
+    public MacroNutrient Fat;
+    public MacroNutrient Protein;
+    public MacroNutrient Alcohol;
+    public MacroNutrient Fiber;
 
     public HashMap<String, Integer> Portions;
+    public List<MacroNutrient> MacroNutrients;
 
     public Food(String name, String info, Integer kcal, float carb, float fat, float protein,
                 float alcohol, float fiber) {
         Name = name;
         Info = info;
         Kcal = kcal;
-        Carb = carb;
-        Fat = fat;
-        Protein = protein;
-        Alcohol = alcohol;
-        Fiber = fiber;
+
+        Carb = new MacroNutrient(carb, 4);
+        Fat = new MacroNutrient(fat, 9);
+        Protein = new MacroNutrient(protein, 4);
+        Alcohol = new MacroNutrient(alcohol, 7);
+        Fiber = new MacroNutrient(fiber, 2);
+
+        MacroNutrients.add(Carb);
+        MacroNutrients.add(Fat);
+        MacroNutrients.add(Protein);
+        MacroNutrients.add(Alcohol);
+        MacroNutrients.add(Fiber);
     }
 
     public float getCarbKcal() {
-        return Carb * 4 * Portion;
+        return Carb.GetKcal() * Portion;
     }
 
     public float getFatKcal() {
-        return Fat * 9 * Portion;
+        return Fat.GetKcal() * Portion;
     }
 
     public float getProteinKcal() {
-        return Protein * 4 * Portion;
+        return Protein.GetKcal() * Portion;
     }
 
     public float getAlkoholKcal() {
-        return Alcohol * 7 * Portion;
+        return Alcohol.GetKcal() * Portion;
     }
 
     public float getFiberKcal() {
-        return Fiber * 2 * Portion;
+        return Fiber.GetKcal() * Portion;
     }
 
     public float getTotalKcal() {
-        return getCarbKcal() + getFatKcal() + getProteinKcal() + getAlkoholKcal() + getFiberKcal();
+      float total = 0;
+      for (MacroNutrient mn: MacroNutrients) {
+        total += mn.GetKcal();
+      }
+      return total * Portion;
     }
 
     public void setPortion(float grams) {
